@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-      package="org.springframework.mobile.orm"
+      package="com.perfectworldprogramming.mobile.orm"
       android:versionCode="1"
       android:versionName="1.0">
     <uses-sdk android:minSdkVersion="8" />
     
-    <instrumentation android:targetPackage="org.springframework.mobile.orm" android:name="android.test.InstrumentationTestRunner" />
+    <instrumentation android:targetPackage="com.perfectworldprogramming.mobile.orm" android:name="android.test.InstrumentationTestRunner" />
     
     <!--application android:icon="@drawable/icon" android:label="@string/app_name">
 		
@@ -13,7 +13,7 @@
     </application-->
     
     <application android:icon="@drawable/icon" android:label="@string/app_name">
-        <activity android:name="Main"
+        <activity android:name=".Mainnnnnnperfectworldprogramming.mobile.orm.Main"
                   android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -25,8 +25,8 @@
     </application>
     
     <!--instrumentation android:label="ORM Unit Tests" 
-    				 android:targetPackage="org.springframework.mobile.orm.test" 
-    				 android:name="android.test.InstrumentationTestRunner" /--><!-- org.springframework.mobile.orm.test.MyInstrumentationTestRunner -->
+    				 android:targetPackage="com.perfectworldprogramming.mobile.orm.test" 
+    				 android:name="android.test.InstrumentationTestRunner" /--><!-- com.perfectworldprogramming.mobile.orm.test.MyInstrumentationTestRunner -->
     
    	<uses-permission android:name="android.permission.PERSISTENT_ACTIVITY"/>
     	

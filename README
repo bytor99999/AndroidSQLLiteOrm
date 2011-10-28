@@ -1,0 +1,15 @@
+Welcome to AndroidSQLLiteOrm.
+
+The purpose of this project is to simplify the Android SQLLite apis. I found the apis to be un-intuitive. Now un-intuitive to one person is different to another. So to many out there the Android SQLLite apis are perfectly fine. Not to me, so I thought about projects that are already out there that simplify Data Access. And since I do a lot of work with the Spring Framework, I thought I could match Spring's JdbcTemplate api and make it run on Android. And that is exactly what I have done.
+
+So, if you have used Spring's JdbcTemplate before, then you know how to use AndroidSQLLiteOrm.
+
+I have added a couple of features above the JdbcTemplate. I have added basic ORM support. Very generic and basic. So I do not do associations. I do Foreign Key Associations of ManyToOne, simple for saving Child records to have the FK stored in its table. But I do not retrieve any associations when querying. The ORM support works really well with Creating and Android database, where Create Table scripts can be automatically generated, as well as Alter Table scripts for updates to your database version.
+
+For the best documentation on how to use this project. Check out the full set of Unit and Integration tests. You can even run the tests if you like to prove that it works.
+
+Thank you for looking at my project
+
+Mark Spritzler
+
+Please raise issues/Feedback and comments on GitHub to this project.
