@@ -1,13 +1,37 @@
 package com.perfectworldprogramming.mobile.orm.annotations;
 
+import com.perfectworldprogramming.mobile.orm.interfaces.ColumnTypeMapper;
+import com.perfectworldprogramming.mobile.orm.reflection.BlobMapper;
+import com.perfectworldprogramming.mobile.orm.reflection.BooleanMapper;
+import com.perfectworldprogramming.mobile.orm.reflection.DateMapper;
+import com.perfectworldprogramming.mobile.orm.reflection.DoubleMapper;
+import com.perfectworldprogramming.mobile.orm.reflection.FloatMapper;
+import com.perfectworldprogramming.mobile.orm.reflection.IntegerMapper;
+import com.perfectworldprogramming.mobile.orm.reflection.LongMapper;
+import com.perfectworldprogramming.mobile.orm.reflection.StringMapper;
+
 /**
  * User: Mark Spritzler
  * Date: 3/10/11
  * Time: 8:42 PM
  */
 public enum ColumnType {
-    TEXT,
-    INTEGER,
-    REAL,
-    BLOB
+    STRING(StringMapper.INSTANCE),
+    INTEGER(IntegerMapper.INSTANCE),
+    LONG(LongMapper.INSTANCE),
+    FLOAT(FloatMapper.INSTANCE),
+    DOUBLE(DoubleMapper.INSTANCE),
+    BLOB(BlobMapper.INSTANCE),
+    BOOLEAN(BooleanMapper.INSTANCE),
+    DATE(DateMapper.INSTANCE);
+
+    private ColumnType(ColumnTypeMapper mapper)
+    {
+        this.mapper = mapper;
+    }
+    public ColumnTypeMapper getMapper()
+    {
+        return this.mapper;
+    }
+    private final ColumnTypeMapper mapper;
 }

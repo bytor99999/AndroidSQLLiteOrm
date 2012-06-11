@@ -1,5 +1,6 @@
 package com.perfectworldprogramming.mobile.orm.exception;
 
+@Deprecated
 public class InvalidCursorRowMapperException extends DataAccessException {
 	
 	private static final long serialVersionUID = 1L;

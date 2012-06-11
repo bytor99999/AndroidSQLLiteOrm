@@ -7,6 +7,7 @@ import android.database.Cursor;
  * Date: 3/19/11
  * Time: 2:35 PM
  */
+@Deprecated
 public interface CursorRowMapper<T> {
     
     T mapRow(Cursor cursor, int rowNum);

@@ -2,14 +2,6 @@ package com.perfectworldprogramming.mobile.orm;
 
 import java.util.List;
 
-import com.perfectworldprogramming.mobile.orm.exception.DataAccessException;
-import com.perfectworldprogramming.mobile.orm.exception.EmptySQLStatementException;
-import com.perfectworldprogramming.mobile.orm.exception.NoRowsReturnedException;
-import com.perfectworldprogramming.mobile.orm.interfaces.CursorExtractor;
-import com.perfectworldprogramming.mobile.orm.interfaces.CursorRowMapper;
-import com.perfectworldprogramming.mobile.orm.interfaces.JdbcOperations;
-import com.perfectworldprogramming.mobile.orm.reflection.DomainClassAnalyzer;
-
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.SQLException;
@@ -17,6 +9,13 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDoneException;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteStatement;
+
+import com.perfectworldprogramming.mobile.orm.exception.DataAccessException;
+import com.perfectworldprogramming.mobile.orm.exception.EmptySQLStatementException;
+import com.perfectworldprogramming.mobile.orm.exception.NoRowsReturnedException;
+import com.perfectworldprogramming.mobile.orm.interfaces.CursorExtractor;
+import com.perfectworldprogramming.mobile.orm.interfaces.JdbcOperations;
+import com.perfectworldprogramming.mobile.orm.reflection.DomainClassAnalyzer;
 
 /**
  * For queries that return Cursors will use the CursorAdapter class to convert the Cursor into your Domain object, either via
@@ -29,11 +28,16 @@ import android.database.sqlite.SQLiteStatement;
  */
 public class AndroidSQLiteTemplate implements JdbcOperations {
     private SQLiteDatabase sqLiteDatabase;
-    private DomainClassAnalyzer domainClassAnalyzer = new DomainClassAnalyzer();
-    private CursorAdapter cursorAdapter = new CursorAdapter();
+    private final DomainClassAnalyzer domainClassAnalyzer = new DomainClassAnalyzer();
+    private final CursorAdapter cursorAdapter = new CursorAdapter();
 
     public AndroidSQLiteTemplate(SQLiteDatabase sqLiteDatabase) {
         this.sqLiteDatabase = sqLiteDatabase;
+    }
+    
+    public Object mapQueryParameter(Object value, Class<?> clazz, String columnName)
+    {
+        return this.domainClassAnalyzer.mapQueryParameter(value, clazz, columnName);
     }
 
     @Override
@@ -41,7 +45,7 @@ public class AndroidSQLiteTemplate implements JdbcOperations {
         ContentValues values = domainClassAnalyzer.createContentValues(object);
         long id = sqLiteDatabase.insert(object.getClass().getSimpleName(),
                 null, values);
-        // the insert method used above doesn't through an exception if it can't insert, but returns -1 as the result.
+        // the insert method used above doesn't throw an exception if it can't insert, but returns -1 as the result.
         if (id != -1) {
         	domainClassAnalyzer.setIdToNewObject(object, id);
         } else {
@@ -178,14 +182,14 @@ public class AndroidSQLiteTemplate implements JdbcOperations {
     }
     
     //** All Implementations below call their corresponding executeFor* private methods for a more central exception handling
-    @Override
-    public <T> T queryForObject(String sql, CursorRowMapper<T> cursorRowMapper, Object... args) {
-    	if (cursorRowMapper == null) {
-    		throw new IllegalArgumentException();
-    	}
-    	sql = replaceParametersInStatement(sql, args);
-    	return executeForSingleObject(sql, cursorRowMapper);        
-    }
+//    @Override
+//    public <T> T queryForObject(String sql, Class<T> clazz, Object... args) {
+//    	if (cursorRowMapper == null) {
+//    		throw new IllegalArgumentException();
+//    	}
+//    	sql = replaceParametersInStatement(sql, args);
+//    	return executeForSingleObject(sql, cursorRowMapper);        
+//    }
 
     @Override
     public <T> T queryForObject(String sql, Class<T> clazz, Object... args) {
@@ -218,14 +222,14 @@ public class AndroidSQLiteTemplate implements JdbcOperations {
         return executeForList(sql, clazz);
     }
 
-    @Override
-    public <T> List<T> query(String sql, CursorRowMapper<T> cursorRowMapper, Object... args) {
-    	if (cursorRowMapper == null) {
-    		throw new IllegalArgumentException();
-    	}
-    	sql = replaceParametersInStatement(sql, args);
-    	return executeForList(sql, cursorRowMapper);
-    }
+//    @Override
+//    public <T> List<T> query(String sql, CursorRowMapper<T> cursorRowMapper, Object... args) {
+//    	if (cursorRowMapper == null) {
+//    		throw new IllegalArgumentException();
+//    	}
+//    	sql = replaceParametersInStatement(sql, args);
+//    	return executeForList(sql, cursorRowMapper);
+//    }
     
     private <T> T executeForSingleObject(String sql, CursorExtractor<T> cursorExtractor) {
     	if (sql == null || "".equals(sql)) {
@@ -245,18 +249,18 @@ public class AndroidSQLiteTemplate implements JdbcOperations {
     	}
     }
     
-    private <T> T executeForSingleObject(String sql, CursorRowMapper<T> cursorRowMapper) {
-    	if (cursorRowMapper == null) {
-    		throw new IllegalArgumentException();
-    	}
-    	Cursor cursor = null;
-    	try {
-    		cursor = sqLiteDatabase.rawQuery(sql, null);
-        	return cursorAdapter.adaptFromCursor(cursor, cursorRowMapper);
-    	} catch (SQLiteException se) {
-    		throw new DataAccessException(se.getMessage());
-    	}
-    }
+//    private <T> T executeForSingleObject(String sql, CursorRowMapper<T> cursorRowMapper) {
+//    	if (cursorRowMapper == null) {
+//    		throw new IllegalArgumentException();
+//    	}
+//    	Cursor cursor = null;
+//    	try {
+//    		cursor = sqLiteDatabase.rawQuery(sql, null);
+//        	return cursorAdapter.adaptFromCursor(cursor, cursorRowMapper);
+//    	} catch (SQLiteException se) {
+//    		throw new DataAccessException(se.getMessage());
+//    	}
+//    }
 
     private <T> T executeForSingleObject(String sql, Class<T> clazz) {
     	Cursor cursor = null;
@@ -268,20 +272,20 @@ public class AndroidSQLiteTemplate implements JdbcOperations {
     	}
     }
     
-    private <T> List<T> executeForList(String sql, CursorRowMapper<T> cursorRowMapper) {
-    	if (cursorRowMapper == null) {
-    		throw new IllegalArgumentException();
-    	}
-    	Cursor cursor = null;
-    	try {
-    		cursor = sqLiteDatabase.rawQuery(sql, null);
-    		return cursorAdapter.adaptListFromCursor(cursor, cursorRowMapper);    		
-    	} catch (SQLiteException se) {
-    		throw new DataAccessException(se.getMessage());
-    	} catch (Exception e) {
-    		throw new DataAccessException("Unable to execute query. Please check your sql for incorrect sql grammer.");
-    	}        
-    }
+//    private <T> List<T> executeForList(String sql, CursorRowMapper<T> cursorRowMapper) {
+//    	if (cursorRowMapper == null) {
+//    		throw new IllegalArgumentException();
+//    	}
+//    	Cursor cursor = null;
+//    	try {
+//    		cursor = sqLiteDatabase.rawQuery(sql, null);
+//    		return cursorAdapter.adaptListFromCursor(cursor, cursorRowMapper);    		
+//    	} catch (SQLiteException se) {
+//    		throw new DataAccessException(se.getMessage());
+//    	} catch (Exception e) {
+//    		throw new DataAccessException("Unable to execute query. Please check your sql for incorrect sql grammer.");
+//    	}        
+//    }
 
     private <T> List<T> executeForList(String sql, Class<T> clazz) {
     	Cursor cursor = null;

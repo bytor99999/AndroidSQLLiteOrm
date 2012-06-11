@@ -175,7 +175,7 @@ public interface JdbcOperations {
      * @param <T>
      * @return
      */
-    public <T> T queryForObject(String sql, CursorRowMapper<T> cursorRowMapper, Object... args) throws DataAccessException;
+//    public <T> T queryForObject(String sql, CursorRowMapper<T> cursorRowMapper, Object... args) throws DataAccessException;
 
     /**
      *
@@ -214,6 +214,6 @@ public interface JdbcOperations {
      * @param <T>
      * @return
      */
-    public <T> List<T> query(String sql, CursorRowMapper<T> cursorRowMapper, Object... args) throws DataAccessException;
+//    public <T> List<T> query(String sql, CursorRowMapper<T> cursorRowMapper, Object... args) throws DataAccessException;
 
 }

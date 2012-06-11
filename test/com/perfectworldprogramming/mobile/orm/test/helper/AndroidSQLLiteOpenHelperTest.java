@@ -25,11 +25,6 @@ public class AndroidSQLLiteOpenHelperTest extends ActivityInstrumentationTestCas
     
     @SuppressWarnings("unchecked")
 	public void setUp() {
-    	try {
-			super.setUp();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 		Context ctx = this.getInstrumentation().getContext();
 		helper = new AndroidSQLLiteOpenHelper(ctx, new Class[]{Person.class, Address.class, Account.class}, "ormtest", 3);
     }

@@ -11,13 +11,15 @@ import android.database.Cursor;
  * Date: 4/6/11
  * Time: 10:50 AM
  */
+@Deprecated
 public class PersonCursorRowMapper implements CursorRowMapper<Person> {
 
-    private static final String ID = "PERSON_ID";
-    private static final String FIRST_NAME = "FIRST_NAME";
+    private static final String ID = Person.PK_PERSON;
+    private static final String FIRST_NAME = Person.COL_FIRST_NAME;
     private static final String LAST_NAME = "LAST_NAME";
     private static final String HEIGHT = "HEIGHT";
     private static final String AGE = "AGE";
+    private static final String STAFF = "STAFF";
     
     @Override
     public Person mapRow(Cursor cursor, int rowNum) {
@@ -26,6 +28,7 @@ public class PersonCursorRowMapper implements CursorRowMapper<Person> {
         person.setLastName(cursor.getString(cursor.getColumnIndex(LAST_NAME)));
         person.setHeight(cursor.getDouble(cursor.getColumnIndex(HEIGHT)));
         person.setAge(cursor.getInt(cursor.getColumnIndex(AGE)));
+        person.setStaff(cursor.getInt(cursor.getColumnIndex(STAFF))==1);
         return person;
     }
 }

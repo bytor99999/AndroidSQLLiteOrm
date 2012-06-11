@@ -3,7 +3,6 @@ package com.perfectworldprogramming.mobile.orm.test.interfaces;
 import java.util.ArrayList;
 import java.util.List;
 
-
 import com.perfectworldprogramming.mobile.orm.AndroidSQLiteTemplate;
 import com.perfectworldprogramming.mobile.orm.exception.ExtraResultsException;
 import com.perfectworldprogramming.mobile.orm.helper.DBHelper;
@@ -15,51 +14,57 @@ import com.perfectworldprogramming.mobile.orm.test.domain.Person;
 import android.test.ActivityInstrumentationTestCase2;
 
 /**
- * User: Mark Spritzler
- * Date: 4/6/11
- * Time: 10:50 AM
+ * User: Mark Spritzler Date: 4/6/11 Time: 10:50 AM
  */
-public class CursorRowMapperTests  extends ActivityInstrumentationTestCase2<Main> {
+public class CursorRowMapperTests extends ActivityInstrumentationTestCase2<Main>
+{
 
-    
-    public CursorRowMapperTests() {
-    	super("org.springframework.mobile.orm.test", Main.class);
+    public CursorRowMapperTests()
+    {
+        super("org.springframework.mobile.orm.test", Main.class);
     }
 
     AndroidSQLiteTemplate template;
+    DBHelper helper;
     List<Person> samplePeople = new ArrayList<Person>();
     List<Address> sampleAddress = new ArrayList<Address>();
 
     @SuppressWarnings("unchecked")
-	public void setUp() {
-    	try {
-			super.setUp();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		DBHelper helper = new DBHelper(this.getInstrumentation().getContext(), new Class[]{Person.class, Address.class, Account.class}, "ormtest", 3);
+    public void setUp()
+    {
+        helper = new DBHelper(this.getInstrumentation().getContext(), new Class[] { Person.class, Address.class, Account.class }, "ormtest", 3);
         template = new AndroidSQLiteTemplate(helper.getSqlLiteDatabase());
         SampleDataHelper.addDataToDatabase(template);
     }
 
+    @Override
+    protected void tearDown() throws Exception
+    {
+        helper.cleanup();
+    }
+
     // Address tests first
-    public void testSuccessfulAddressMapperTest() {
-        List<Address> addresses = template.query("Select * from ADDRESS", new AddressCursorRowMapper());
+    public void testSuccessfulAddressMapperTest()
+    {
+        List<Address> addresses = template.query("Select * from ADDRESS", Address.class);
         assertNotNull(addresses);
         assertEquals(2, addresses.size());
-        for (Address address : sampleAddress) {
+        for (Address address : sampleAddress)
+        {
             assertTrue(addresses.contains(address));
         }
     }
 
-    public void testAddressQueryWithNoResultsTest () {
-        List<Address> addresses = template.query("Select * from ADDRESS where 1=2", new AddressCursorRowMapper());
+    public void testAddressQueryWithNoResultsTest()
+    {
+        List<Address> addresses = template.query("Select * from ADDRESS where 1=2", Address.class);
         assertNotNull(addresses);
         assertEquals(0, addresses.size());
     }
 
-    public void testAddressSingleObjectSuccessTest () {
-        Address address = template.queryForObject("Select * from ADDRESS where ZIP_CODE='?'", new AddressCursorRowMapper(), "12345");
+    public void testAddressSingleObjectSuccessTest()
+    {
+        Address address = template.queryForObject("Select * from ADDRESS where ZIP_CODE='?'", Address.class, "12345");
         assertNotNull(address);
         assertEquals("Philadelphia", address.getCity());
         assertEquals("PA", address.getState());
@@ -67,69 +72,103 @@ public class CursorRowMapperTests  extends ActivityInstrumentationTestCase2<Main
         assertEquals("12345", address.getZipCode());
     }
 
-    //@Test(expected = ExtraResultsException.class)
-    public void testAddressSingleObjectReturnsNoResultsTest() {
-    	try {
-    		template.queryForObject("Select * from ADDRESS where ZIP_CODE='?'", new AddressCursorRowMapper(), "98765");
-    		fail("This test should have thrown an ExtraResultsException stating that 0 rows were returned when expecting 1");
-    	} catch (ExtraResultsException ere) {
-    		String numberOfResults = "0";
-    		assertEquals("Expected one row returned by query but received " + numberOfResults, ere.getMessage());
-    	}
+    // @Test(expected = ExtraResultsException.class)
+    public void t_estAddressSingleObjectReturnsNoResultsTest()
+    {
+        try
+        {
+            template.queryForObject("Select * from ADDRESS where ZIP_CODE='?'", Address.class, "98765");
+            fail("This test should have thrown an ExtraResultsException stating that 0 rows were returned when expecting 1");
+        }
+        catch (ExtraResultsException ere)
+        {
+            String numberOfResults = "0";
+            assertEquals("Expected one row returned by query but received " + numberOfResults, ere.getMessage());
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            fail("Should have thrown ExtraResultsException, not " + e.getClass().getName());
+        }
     }
 
-    //@Test(expected = ExtraResultsException.class)
-    public void testAddressSingleObjectReturnsTwoRowsTest() {
-        try {
-        	template.queryForObject("Select * from ADDRESS", new AddressCursorRowMapper());
-        } catch (ExtraResultsException ere) {
-    		String numberOfResults = "2";
-    		assertEquals("Expected one row returned by query but received " + numberOfResults, ere.getMessage());
-    	}
+    // @Test(expected = ExtraResultsException.class)
+    public void testAddressSingleObjectReturnsTwoRowsTest()
+    {
+        try
+        {
+            template.queryForObject("Select * from ADDRESS", Address.class);
+        }
+        catch (ExtraResultsException ere)
+        {
+            String numberOfResults = "2";
+            assertEquals("Expected one row returned by query but received " + numberOfResults, ere.getMessage());
+        }
     }
 
     // Person tests second
-    public void testSuccessfulPersonMapperTest() {
-        List<Person> persons = template.query("Select * from PERSON", new PersonCursorRowMapper());
+    public void testSuccessfulPersonMapperTest()
+    {
+        List<Person> persons = template.query("Select * from PERSON", Person.class);
         assertNotNull(persons);
         assertEquals(2, persons.size());
-        for (Person person : samplePeople) {
+        for (Person person : samplePeople)
+        {
             assertTrue(persons.contains(person));
         }
     }
 
-    public void testPersonQueryWithNoResultsTest () {
-        List<Person> persons = template.query("Select * from ADDRESS where 1=2", new PersonCursorRowMapper());
+    public void testPersonQueryWithNoResultsTest()
+    {
+        List<Person> persons = template.query("Select * from ADDRESS where 1=2", Person.class);
         assertNotNull(persons);
         assertEquals(0, persons.size());
     }
 
-    public void testPersonSingleObjectSuccessTest () {
-        Person person = template.queryForObject("Select * from PERSON where FIRST_NAME='?'", new PersonCursorRowMapper(), "John");
+    public void testPersonSingleObjectSuccessTest()
+    {
+        Person person = template.queryForObject("Select * from PERSON where FIRST_NAME='?'", Person.class, "John");
         assertNotNull(person);
-        assertEquals(new Integer(42), person.getAge());
+        assertEquals(Integer.valueOf(42), person.getAge());
         assertEquals("John", person.getFirstName());
         assertEquals("Doe", person.getLastName());
-        assertEquals(new Double("5.1d"), person.getHeight());
+        assertEquals(Double.valueOf("5.1d"), person.getHeight());
     }
 
-    //@Test(expected = ExtraResultsException.class)
-    public void testPersonSingleObjectReturnsNoResultsTest() {
-    	try {
-    		template.queryForObject("Select * from PERSON where FIRST_NAME='?' and AGE=?", new PersonCursorRowMapper(), "George", 37);
-    	} catch (ExtraResultsException ere) {
-    		String numberOfResults = "0";
-    		assertEquals("Expected one row returned by query but received " + numberOfResults, ere.getMessage());
-    	}
+    // @Test(expected = ExtraResultsException.class)
+    public void t_estPersonSingleObjectReturnsNoResultsTest()
+    {
+        try
+        {
+            template.queryForObject("Select * from PERSON where FIRST_NAME='?' and AGE=?", Person.class, "George", 37);
+        }
+        catch (ExtraResultsException ere)
+        {
+            String numberOfResults = "0";
+            assertEquals("Expected one row returned by query but received " + numberOfResults, ere.getMessage());
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            fail("Should have thrown ExtraResultsException, not " + e.getClass().getName());
+        }
     }
 
-    //@Test(expected = ExtraResultsException.class)
-    public void testPersonSingleObjectReturnsTwoRowsTest() {
-    	try {
-    		template.queryForObject("Select * from PERSON", new PersonCursorRowMapper());
-    	} catch (ExtraResultsException ere) {
-    		String numberOfResults = "2";
-    		assertEquals("Expected one row returned by query but received " + numberOfResults, ere.getMessage());
-    	}
+    // @Test(expected = ExtraResultsException.class)
+    public void testPersonSingleObjectReturnsTwoRowsTest()
+    {
+        try
+        {
+            template.queryForObject("Select * from PERSON", Person.class);
+        }
+        catch (ExtraResultsException ere)
+        {
+            String numberOfResults = "2";
+            assertEquals("Expected one row returned by query but received " + numberOfResults, ere.getMessage());
+        }
+        catch (Exception e)
+        {
+            fail("Should have thrown ExtraResultsException, not " + e.getClass().getName());
+        }
     }
 }

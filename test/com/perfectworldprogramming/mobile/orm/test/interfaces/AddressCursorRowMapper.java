@@ -11,6 +11,7 @@ import android.database.Cursor;
  * Date: 4/6/11
  * Time: 10:55 AM
  */
+@Deprecated
 public class AddressCursorRowMapper implements CursorRowMapper<Address> {
 
     private static final String ID = "ADDRESS_ID";

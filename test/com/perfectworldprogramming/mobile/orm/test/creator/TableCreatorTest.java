@@ -2,13 +2,13 @@ package com.perfectworldprogramming.mobile.orm.test.creator;
 
 import java.util.List;
 
+import android.test.ActivityInstrumentationTestCase2;
+import android.util.Log;
 
 import com.perfectworldprogramming.mobile.orm.creator.SQLLiteCreateStatementGenerator;
 import com.perfectworldprogramming.mobile.orm.test.Main;
 import com.perfectworldprogramming.mobile.orm.test.domain.Address;
 import com.perfectworldprogramming.mobile.orm.test.domain.Person;
-
-import android.test.ActivityInstrumentationTestCase2;
 
 /**
  * User: Mark Spritzler
@@ -24,26 +24,18 @@ public class TableCreatorTest extends ActivityInstrumentationTestCase2<Main> {
     	super("org.springframework.mobile.orm.test", Main.class);
     }
     
-    public void setUp() {
-    	try {
-			super.setUp();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-    }
-    
     @SuppressWarnings("unchecked")
-	public void testGenerateTables() {        
+	public void testGenerateTables() {
         String statement = SQLLiteCreateStatementGenerator.createCreateStatement(Person.class);
         assertNotNull("Statement should not be null", statement);
-        System.out.println(statement);
+        Log.d("ORM", statement);
         
         SQLLiteCreateStatementGenerator.setClasses(new Class[]{Person.class, Address.class});
         List<String> createStatements = SQLLiteCreateStatementGenerator.getCreateStatements();
         assertNotNull("Should return a list", createStatements);
         assertEquals("Should return two statements", 2, createStatements.size());
         for (String aStatement : createStatements) {
-            System.out.println(aStatement);
+            Log.d("ORM", aStatement);
         }
     }
 
