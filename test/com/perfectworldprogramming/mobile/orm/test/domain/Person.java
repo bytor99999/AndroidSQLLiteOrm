@@ -2,6 +2,7 @@ package com.perfectworldprogramming.mobile.orm.test.domain;
 
 import com.perfectworldprogramming.mobile.orm.annotations.Column;
 import com.perfectworldprogramming.mobile.orm.annotations.ColumnType;
+import com.perfectworldprogramming.mobile.orm.annotations.Domain;
 import com.perfectworldprogramming.mobile.orm.annotations.PrimaryKey;
 import com.perfectworldprogramming.mobile.orm.annotations.Transient;
 
@@ -13,6 +14,7 @@ import java.util.List;
  * Date: 3/14/11
  * Time: 2:42 PM
  */
+@Domain(databaseName="ormtest", databaseVersion=3)
 public class Person {
 
     public static final String PK_PERSON ="PERSON_ID";

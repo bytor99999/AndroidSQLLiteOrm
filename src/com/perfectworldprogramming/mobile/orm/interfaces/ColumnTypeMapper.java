@@ -7,7 +7,7 @@ import com.perfectworldprogramming.mobile.orm.AndroidSQLiteTemplate;
 import android.content.ContentValues;
 import android.database.Cursor;
 
-public interface ColumnTypeMapper<T extends Object>
+public interface ColumnTypeMapper<T>
 {
     void modelToDatabase(String columnName, Object object, ContentValues values);
     void modelToDatabase(Field field, Object instance, ContentValues values);

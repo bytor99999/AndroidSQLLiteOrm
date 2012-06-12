@@ -2,8 +2,10 @@ package com.perfectworldprogramming.mobile.orm.test.domain;
 
 import com.perfectworldprogramming.mobile.orm.annotations.Column;
 import com.perfectworldprogramming.mobile.orm.annotations.ColumnType;
+import com.perfectworldprogramming.mobile.orm.annotations.Domain;
 import com.perfectworldprogramming.mobile.orm.annotations.PrimaryKey;
 
+@Domain(databaseName="ormtest", databaseVersion=3)
 public class Account {
 	public static final String PK_ACCOUNT_ID = "ACCOUNT_ID";
     public static final String COL_ACCOUNT_TYPE = "ACCOUNT_TYPE";

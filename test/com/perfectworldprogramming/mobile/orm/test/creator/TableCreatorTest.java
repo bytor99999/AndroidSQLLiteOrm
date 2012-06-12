@@ -16,7 +16,7 @@ import com.perfectworldprogramming.mobile.orm.test.domain.Person;
  * Time: 2:40 PM
  */
 public class TableCreatorTest extends ActivityInstrumentationTestCase2<Main> {
-    
+
 	// TODO need more tests
 	private SQLLiteCreateStatementGenerator SQLLiteCreateStatementGenerator = new SQLLiteCreateStatementGenerator();
 

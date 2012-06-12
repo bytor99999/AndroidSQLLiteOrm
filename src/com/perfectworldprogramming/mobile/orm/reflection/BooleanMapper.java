@@ -4,7 +4,6 @@ import java.lang.reflect.Field;
 
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.util.Log;
 
 import com.perfectworldprogramming.mobile.orm.annotations.Column;
 import com.perfectworldprogramming.mobile.orm.exception.DataAccessException;
@@ -48,9 +47,6 @@ public class BooleanMapper extends AbstractMapper<Boolean>
         }
         catch(IllegalArgumentException e)
         {
-            Log.e("BooleanMapper", field.getName());
-            Log.e("BooleanMapper", field.getType().getName());
-            
             throw e;
         }
     }
@@ -85,7 +81,7 @@ public class BooleanMapper extends AbstractMapper<Boolean>
     @Override
     public Object asSqlQueryParameter(Boolean value)
     {
-        return value ? Integer.valueOf(1): Integer.valueOf(0);
+        return (Boolean)value ? Integer.valueOf(1): Integer.valueOf(0);
     }
 
     

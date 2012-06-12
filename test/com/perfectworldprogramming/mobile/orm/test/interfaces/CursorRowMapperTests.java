@@ -46,7 +46,7 @@ public class CursorRowMapperTests extends ActivityInstrumentationTestCase2<Main>
     // Address tests first
     public void testSuccessfulAddressMapperTest()
     {
-        List<Address> addresses = template.query("Select * from ADDRESS", Address.class);
+        List<Address> addresses = template.query("Select * from ADDRESS", new AddressCursorRowMapper());
         assertNotNull(addresses);
         assertEquals(2, addresses.size());
         for (Address address : sampleAddress)
@@ -57,14 +57,14 @@ public class CursorRowMapperTests extends ActivityInstrumentationTestCase2<Main>
 
     public void testAddressQueryWithNoResultsTest()
     {
-        List<Address> addresses = template.query("Select * from ADDRESS where 1=2", Address.class);
+        List<Address> addresses = template.query("Select * from ADDRESS where 1=2", new AddressCursorRowMapper());
         assertNotNull(addresses);
         assertEquals(0, addresses.size());
     }
 
     public void testAddressSingleObjectSuccessTest()
     {
-        Address address = template.queryForObject("Select * from ADDRESS where ZIP_CODE='?'", Address.class, "12345");
+        Address address = template.queryForObject("Select * from ADDRESS where ZIP_CODE='?'", new AddressCursorRowMapper(), "12345");
         assertNotNull(address);
         assertEquals("Philadelphia", address.getCity());
         assertEquals("PA", address.getState());
@@ -73,11 +73,11 @@ public class CursorRowMapperTests extends ActivityInstrumentationTestCase2<Main>
     }
 
     // @Test(expected = ExtraResultsException.class)
-    public void t_estAddressSingleObjectReturnsNoResultsTest()
+    public void testAddressSingleObjectReturnsNoResultsTest()
     {
         try
         {
-            template.queryForObject("Select * from ADDRESS where ZIP_CODE='?'", Address.class, "98765");
+            template.queryForObject("Select * from ADDRESS where ZIP_CODE='?'", new AddressCursorRowMapper(), "98765");
             fail("This test should have thrown an ExtraResultsException stating that 0 rows were returned when expecting 1");
         }
         catch (ExtraResultsException ere)
@@ -97,7 +97,7 @@ public class CursorRowMapperTests extends ActivityInstrumentationTestCase2<Main>
     {
         try
         {
-            template.queryForObject("Select * from ADDRESS", Address.class);
+            template.queryForObject("Select * from ADDRESS", new AddressCursorRowMapper());
         }
         catch (ExtraResultsException ere)
         {
@@ -109,7 +109,7 @@ public class CursorRowMapperTests extends ActivityInstrumentationTestCase2<Main>
     // Person tests second
     public void testSuccessfulPersonMapperTest()
     {
-        List<Person> persons = template.query("Select * from PERSON", Person.class);
+        List<Person> persons = template.query("Select * from PERSON", new PersonCursorRowMapper());
         assertNotNull(persons);
         assertEquals(2, persons.size());
         for (Person person : samplePeople)
@@ -120,14 +120,14 @@ public class CursorRowMapperTests extends ActivityInstrumentationTestCase2<Main>
 
     public void testPersonQueryWithNoResultsTest()
     {
-        List<Person> persons = template.query("Select * from ADDRESS where 1=2", Person.class);
+        List<Person> persons = template.query("Select * from ADDRESS where 1=2", new PersonCursorRowMapper());
         assertNotNull(persons);
         assertEquals(0, persons.size());
     }
 
     public void testPersonSingleObjectSuccessTest()
     {
-        Person person = template.queryForObject("Select * from PERSON where FIRST_NAME='?'", Person.class, "John");
+        Person person = template.queryForObject("Select * from PERSON where FIRST_NAME='?'", new PersonCursorRowMapper(), "John");
         assertNotNull(person);
         assertEquals(Integer.valueOf(42), person.getAge());
         assertEquals("John", person.getFirstName());
@@ -136,11 +136,11 @@ public class CursorRowMapperTests extends ActivityInstrumentationTestCase2<Main>
     }
 
     // @Test(expected = ExtraResultsException.class)
-    public void t_estPersonSingleObjectReturnsNoResultsTest()
+    public void testPersonSingleObjectReturnsNoResultsTest()
     {
         try
         {
-            template.queryForObject("Select * from PERSON where FIRST_NAME='?' and AGE=?", Person.class, "George", 37);
+            template.queryForObject("Select * from PERSON where FIRST_NAME='?' and AGE=?", new PersonCursorRowMapper(), "George", 37);
         }
         catch (ExtraResultsException ere)
         {
@@ -159,7 +159,7 @@ public class CursorRowMapperTests extends ActivityInstrumentationTestCase2<Main>
     {
         try
         {
-            template.queryForObject("Select * from PERSON", Person.class);
+            template.queryForObject("Select * from PERSON", new PersonCursorRowMapper());
         }
         catch (ExtraResultsException ere)
         {

@@ -73,7 +73,7 @@ public class DateMapper extends AbstractMapper<Date>
     {
         if(value!=null)
         {
-            return Long.valueOf(value.getTime());
+            return Long.valueOf(((Date)value).getTime());
         }
         return null;
     }

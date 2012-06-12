@@ -102,7 +102,7 @@ public class ColumnTypeMapperTest extends ActivityInstrumentationTestCase2<Main>
 
     public void testMapNullPrimaryKeyModelToDatabase()
     {
-        ColumnTypeMapper<Long> mapper = PrimaryKeyMapper.INSTANCE;
+        ColumnTypeMapper<?> mapper = PrimaryKeyMapper.INSTANCE;
         
         Person person = new Person();
         // Primary key
@@ -114,7 +114,7 @@ public class ColumnTypeMapperTest extends ActivityInstrumentationTestCase2<Main>
     public void testMapNullStringModelToDatabase()
     {
         Person person = new Person();
-        ColumnTypeMapper<String> mapper = StringMapper.INSTANCE;
+        ColumnTypeMapper<?> mapper = StringMapper.INSTANCE;
         // String
         ContentValues cv = new ContentValues();
         mapper.modelToDatabase(Person.COL_FIRST_NAME, person, cv);
@@ -127,7 +127,7 @@ public class ColumnTypeMapperTest extends ActivityInstrumentationTestCase2<Main>
     {
         Person person = new Person();
         // Integer and int primitive
-        ColumnTypeMapper<Integer> mapper = IntegerMapper.INSTANCE;
+        ColumnTypeMapper<?> mapper = IntegerMapper.INSTANCE;
         ContentValues cv = new ContentValues();
         mapper.modelToDatabase("AGE", person, cv);
         doTestNullContentValues(cv, "AGE", true);
@@ -145,7 +145,7 @@ public class ColumnTypeMapperTest extends ActivityInstrumentationTestCase2<Main>
     public void testMapNullLongModelToDatabase()
     {
         Person person = new Person();
-        ColumnTypeMapper<Long> mapper = LongMapper.INSTANCE;
+        ColumnTypeMapper<?> mapper = LongMapper.INSTANCE;
         ContentValues cv = new ContentValues();
         mapper.modelToDatabase("DEPENDANTS", person, cv);
         doTestNullContentValues(cv, "DEPENDANTS", true);
@@ -162,7 +162,7 @@ public class ColumnTypeMapperTest extends ActivityInstrumentationTestCase2<Main>
     public void testMapNullFloatModelToDatabase()
     {
         Person person = new Person();
-        ColumnTypeMapper<Float> mapper = FloatMapper.INSTANCE;
+        ColumnTypeMapper<?> mapper = FloatMapper.INSTANCE;
         ContentValues cv = new ContentValues();
         mapper.modelToDatabase("WEIGHT", person, cv);
         doTestNullContentValues(cv, "WEIGHT", true);
@@ -179,7 +179,7 @@ public class ColumnTypeMapperTest extends ActivityInstrumentationTestCase2<Main>
     public void testMapNullDoubleModelToDatabase()
     {
         Person person = new Person();
-        ColumnTypeMapper<Double> mapper = DoubleMapper.INSTANCE;
+        ColumnTypeMapper<?> mapper = DoubleMapper.INSTANCE;
         ContentValues cv = new ContentValues();
         mapper.modelToDatabase("HEIGHT", person, cv);
         doTestNullContentValues(cv, "HEIGHT", true);
@@ -196,7 +196,7 @@ public class ColumnTypeMapperTest extends ActivityInstrumentationTestCase2<Main>
     public void testMapNullBooleanModelToDatabase()
     {
         Person person = new Person();
-        ColumnTypeMapper<Boolean> mapper = BooleanMapper.INSTANCE;
+        ColumnTypeMapper<?> mapper = BooleanMapper.INSTANCE;
         ContentValues cv = new ContentValues();
         mapper.modelToDatabase("FEMALE", person, cv);
         doTestNullContentValues(cv, "FEMALE", true);
@@ -218,7 +218,7 @@ public class ColumnTypeMapperTest extends ActivityInstrumentationTestCase2<Main>
         Cursor cursor = dataBase.rawQuery("Select * from Person where PERSON_ID = "+nullId, null);
         cursor.moveToFirst();
         Person person = new Person();
-        ColumnTypeMapper<String> mapper = StringMapper.INSTANCE;
+        ColumnTypeMapper<?> mapper = StringMapper.INSTANCE;
 
         mapper.databaseToModel(cursor, Person.COL_FIRST_NAME, person);
         assertNull("First name", person.getFirstName());
@@ -236,14 +236,14 @@ public class ColumnTypeMapperTest extends ActivityInstrumentationTestCase2<Main>
         Cursor cursor = dataBase.rawQuery("Select * from Person where PERSON_ID = "+nullId, null);
         cursor.moveToFirst();
         Person person = new Person();
-        ColumnTypeMapper<Integer> mapper = IntegerMapper.INSTANCE;
+        ColumnTypeMapper<?> mapper = IntegerMapper.INSTANCE;
 
-        //TODO null Integer wrapper mapping
-//        mapper.databaseToModel(cursor, "AGE", person);
-//        assertNull("Age", person.getAge());
-//        Field field = getField(Person.class, "age");
-//        mapper.databaseToModel(cursor, field, person);
-//        assertNull("Age", person.getAge());
+        // TODO requires a nullable Integer wrapper field
+        //mapper.databaseToModel(cursor, "AGE", person);
+        //assertNull("Age", person.getAge());
+        //Field field = getField(Person.class, "age");
+        //mapper.databaseToModel(cursor, field, person);
+        //assertNull("Age", person.getAge());
 
         mapper.databaseToModel(cursor, "JACKET_SIZE", person);
         assertEquals("Jacket size", 0, person.getJacketSize());
@@ -260,7 +260,7 @@ public class ColumnTypeMapperTest extends ActivityInstrumentationTestCase2<Main>
         long nullId = template.insert(nullPerson);
         Cursor cursor = dataBase.rawQuery("Select * from Person where PERSON_ID = "+nullId, null);
         cursor.moveToFirst();
-        ColumnTypeMapper<Long> mapper = LongMapper.INSTANCE;
+        ColumnTypeMapper<?> mapper = LongMapper.INSTANCE;
         Person person = new Person();
 
         mapper.databaseToModel(cursor, "DEPENDANTS", person);
@@ -284,7 +284,7 @@ public class ColumnTypeMapperTest extends ActivityInstrumentationTestCase2<Main>
         long nullId = template.insert(nullPerson);
         Cursor cursor = dataBase.rawQuery("Select * from Person where PERSON_ID = "+nullId, null);
         cursor.moveToFirst();
-        ColumnTypeMapper<Float> mapper = FloatMapper.INSTANCE;
+        ColumnTypeMapper<?> mapper = FloatMapper.INSTANCE;
         Person person = new Person();
 
         mapper.databaseToModel(cursor, "WEIGHT", person);
@@ -308,15 +308,15 @@ public class ColumnTypeMapperTest extends ActivityInstrumentationTestCase2<Main>
         long nullId = template.insert(nullPerson);
         Cursor cursor = dataBase.rawQuery("Select * from Person where PERSON_ID = "+nullId, null);
         cursor.moveToFirst();
-        ColumnTypeMapper<Double> mapper = DoubleMapper.INSTANCE;
+        ColumnTypeMapper<?> mapper = DoubleMapper.INSTANCE;
         Person person = new Person();
 
-        //TODO null Double wrapper mapping
-//        mapper.databaseToModel(cursor, "HEIGHT", person);
-//        assertNull("Height", person.getHeight());
-//        Field field = getField(Person.class, "height");
-//        mapper.databaseToModel(cursor, field, person);
-//        assertNull("Height", person.getHeight());
+        // TODO needs a nullable Double wrapper
+        //mapper.databaseToModel(cursor, "HEIGHT", person);
+        //assertNull("Height", person.getHeight());
+        //Field field = getField(Person.class, "height");
+        //mapper.databaseToModel(cursor, field, person);
+        //assertNull("Height", person.getHeight());
 
         mapper.databaseToModel(cursor, "WEALTH", person);
         assertEquals("Wealth", 0D, person.getWealth());
@@ -333,7 +333,7 @@ public class ColumnTypeMapperTest extends ActivityInstrumentationTestCase2<Main>
         long nullId = template.insert(nullPerson);
         Cursor cursor = dataBase.rawQuery("Select * from Person where PERSON_ID = "+nullId, null);
         cursor.moveToFirst();
-        ColumnTypeMapper<Boolean> mapper = BooleanMapper.INSTANCE;
+        ColumnTypeMapper<?> mapper = BooleanMapper.INSTANCE;
         Person person = new Person();
 
         mapper.databaseToModel(cursor, "FEMALE", person);
@@ -356,7 +356,7 @@ public class ColumnTypeMapperTest extends ActivityInstrumentationTestCase2<Main>
 
     public void testBooleanMapperDatabaseToModel()
     {
-        ColumnTypeMapper<Boolean> mapper = BooleanMapper.INSTANCE;
+        ColumnTypeMapper<?> mapper = BooleanMapper.INSTANCE;
         Field fieldStaff = getField(Person.class, "staff");
         Field fieldFemale = getField(Person.class, "female");
 
@@ -391,7 +391,7 @@ public class ColumnTypeMapperTest extends ActivityInstrumentationTestCase2<Main>
 
     public void testBooleanMapperModelToDatabase()
     {
-        ColumnTypeMapper<Boolean> mapper = BooleanMapper.INSTANCE;
+        ColumnTypeMapper<?> mapper = BooleanMapper.INSTANCE;
         Field field = getField(Person.class, "staff");
 
         Person person = new Person();
@@ -415,7 +415,7 @@ public class ColumnTypeMapperTest extends ActivityInstrumentationTestCase2<Main>
 
     public void testStringMapperDatabaseToModel()
     {
-        ColumnTypeMapper<String> mapper = StringMapper.INSTANCE;
+        ColumnTypeMapper<?> mapper = StringMapper.INSTANCE;
         Field field = getField(Person.class, "firstName");
 
         assertEquals("DatabaseColumnType", "TEXT", mapper.getDatabaseColumnType());
@@ -432,7 +432,7 @@ public class ColumnTypeMapperTest extends ActivityInstrumentationTestCase2<Main>
 
     public void testStringMapperModelToDatabase()
     {
-        ColumnTypeMapper<String> mapper = StringMapper.INSTANCE;
+        ColumnTypeMapper<?> mapper = StringMapper.INSTANCE;
         Field field = getField(Person.class, "firstName");
 
         Person person = new Person();
@@ -447,7 +447,7 @@ public class ColumnTypeMapperTest extends ActivityInstrumentationTestCase2<Main>
 
     public void testDoubleMapperDatabaseToModel()
     {
-        ColumnTypeMapper<Double> mapper = DoubleMapper.INSTANCE;
+        ColumnTypeMapper<?> mapper = DoubleMapper.INSTANCE;
 
         assertEquals("DatabaseColumnType", "REAL", mapper.getDatabaseColumnType());
 
@@ -471,7 +471,7 @@ public class ColumnTypeMapperTest extends ActivityInstrumentationTestCase2<Main>
     
     public void testDoubleMapperModelToDatabase()
     {
-        ColumnTypeMapper<Double> mapper = DoubleMapper.INSTANCE;
+        ColumnTypeMapper<?> mapper = DoubleMapper.INSTANCE;
         Person person = new Person();
         person.setHeight(Double.valueOf(5.2D));
         person.setWealth(Double.valueOf(10000.20D));
@@ -495,7 +495,7 @@ public class ColumnTypeMapperTest extends ActivityInstrumentationTestCase2<Main>
     
     public void testFloatMapperDatabaseToModel()
     {
-        ColumnTypeMapper<Float> mapper = FloatMapper.INSTANCE;
+        ColumnTypeMapper<?> mapper = FloatMapper.INSTANCE;
 
         assertEquals("DatabaseColumnType", "REAL", mapper.getDatabaseColumnType());
 
@@ -519,7 +519,7 @@ public class ColumnTypeMapperTest extends ActivityInstrumentationTestCase2<Main>
 
     public void testFloatMapperModelToDatabase()
     {
-        ColumnTypeMapper<Float> mapper = FloatMapper.INSTANCE;
+        ColumnTypeMapper<?> mapper = FloatMapper.INSTANCE;
         Person person = new Person();
         person.setWeight(Float.valueOf(55.2F));
         person.setShoeSize(7.10F);
@@ -543,7 +543,7 @@ public class ColumnTypeMapperTest extends ActivityInstrumentationTestCase2<Main>
 
     public void testIntegerMapperDatabaseToModel()
     {
-        ColumnTypeMapper<Integer> mapper = IntegerMapper.INSTANCE;
+        ColumnTypeMapper<?> mapper = IntegerMapper.INSTANCE;
 
         assertEquals("DatabaseColumnType", "INTEGER", mapper.getDatabaseColumnType());
 
@@ -567,7 +567,7 @@ public class ColumnTypeMapperTest extends ActivityInstrumentationTestCase2<Main>
 
     public void testIntegerMapperModelToDatabase()
     {
-        ColumnTypeMapper<Integer> mapper = IntegerMapper.INSTANCE;
+        ColumnTypeMapper<?> mapper = IntegerMapper.INSTANCE;
         Person person = new Person();
         person.setAge(Integer.valueOf(55));
         person.setJacketSize(56);
@@ -591,7 +591,7 @@ public class ColumnTypeMapperTest extends ActivityInstrumentationTestCase2<Main>
 
     public void testLongMapperDatabaseToModel()
     {
-        ColumnTypeMapper<Long> mapper = LongMapper.INSTANCE;
+        ColumnTypeMapper<?> mapper = LongMapper.INSTANCE;
 
         assertEquals("DatabaseColumnType", "INTEGER", mapper.getDatabaseColumnType());
 
@@ -615,7 +615,7 @@ public class ColumnTypeMapperTest extends ActivityInstrumentationTestCase2<Main>
 
     public void testLongMapperModelToDatabase()
     {
-        ColumnTypeMapper<Long> mapper = LongMapper.INSTANCE;
+        ColumnTypeMapper<?> mapper = LongMapper.INSTANCE;
         Person person = new Person();
         person.setDependants(Long.valueOf(57));
         person.setPets(58L);
@@ -639,7 +639,7 @@ public class ColumnTypeMapperTest extends ActivityInstrumentationTestCase2<Main>
 
     public void testDateMapperDatabaseToModel()
     {
-        ColumnTypeMapper<java.sql.Date> mapper = DateMapper.INSTANCE;
+        ColumnTypeMapper<?> mapper = DateMapper.INSTANCE;
 
         assertEquals("DatabaseColumnType", "INTEGER", mapper.getDatabaseColumnType());
 
@@ -656,7 +656,7 @@ public class ColumnTypeMapperTest extends ActivityInstrumentationTestCase2<Main>
 
     public void testDateMapperModelToDatabase()
     {
-        ColumnTypeMapper<java.sql.Date> mapper = DateMapper.INSTANCE;
+        ColumnTypeMapper<?> mapper = DateMapper.INSTANCE;
         Person person = new Person();
         
         // year specified as year-1900

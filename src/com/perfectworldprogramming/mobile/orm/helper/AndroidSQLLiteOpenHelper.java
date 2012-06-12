@@ -67,7 +67,7 @@ public class AndroidSQLLiteOpenHelper extends SQLiteOpenHelper {
         		sqLiteDatabase.execSQL(String.format( "INSERT INTO %s (%s) SELECT %s from temp_%s", tableName, cols, cols, tableName));
         		sqLiteDatabase.execSQL("DROP table 'temp_" + tableName +"'");
         	} catch (SQLException e) {
-        		Log.v(tableName, e.getMessage(), e);
+        		Log.v("ORM", tableName+": "+e.getMessage(), e);
         		throw new DatabaseSqlException(e.getMessage(), e);
         	}
         }
@@ -85,9 +85,8 @@ public class AndroidSQLLiteOpenHelper extends SQLiteOpenHelper {
                 ar = new ArrayList<String>(Arrays.asList(c.getColumnNames()));
             }
         } catch (Exception e) {
-            Log.v(tableName, e.getMessage(), e);
+            Log.v("ORM", tableName+": "+e.getMessage(), e);
             throw new RuntimeException("AndroidSQLLiteOpenHelper", e);
-            //e.printStackTrace();
         } finally {
             if (c != null)
                 c.close();
