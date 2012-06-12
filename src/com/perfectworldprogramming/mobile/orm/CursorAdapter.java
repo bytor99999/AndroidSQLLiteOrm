@@ -11,6 +11,7 @@ import com.perfectworldprogramming.mobile.orm.annotations.Column;
 import com.perfectworldprogramming.mobile.orm.annotations.ForeignKey;
 import com.perfectworldprogramming.mobile.orm.annotations.PrimaryKey;
 import com.perfectworldprogramming.mobile.orm.annotations.Transient;
+import com.perfectworldprogramming.mobile.orm.exception.DataAccessException;
 import com.perfectworldprogramming.mobile.orm.exception.ExtraResultsException;
 import com.perfectworldprogramming.mobile.orm.exception.InvalidCursorExtractorException;
 import com.perfectworldprogramming.mobile.orm.exception.InvalidCursorRowMapperException;
@@ -227,7 +228,7 @@ public class CursorAdapter {
         }
         else
         {
-            return;
+            throw new DataAccessException("Invalid type, cannot find field "+fieldToSet.getName()+" on type "+object.getClass().getName());
         }
         mapper.databaseToModel(cursor, fieldToSet, object);
     }
