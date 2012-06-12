@@ -25,13 +25,17 @@ public enum ColumnType {
     BOOLEAN(BooleanMapper.INSTANCE),
     DATE(DateMapper.INSTANCE);
 
-    private ColumnType(ColumnTypeMapper mapper)
+    private <T> ColumnType(ColumnTypeMapper<T> mapper)
     {
         this.mapper = mapper;
     }
-    public ColumnTypeMapper getMapper()
+    
+    @SuppressWarnings("unchecked")
+	public <T> ColumnTypeMapper<T> getMapper()
     {
         return this.mapper;
     }
-    private final ColumnTypeMapper mapper;
+
+    @SuppressWarnings("rawtypes")
+	private final ColumnTypeMapper mapper;
 }

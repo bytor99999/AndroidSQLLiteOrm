@@ -10,9 +10,13 @@ import com.perfectworldprogramming.mobile.orm.annotations.Column;
 import com.perfectworldprogramming.mobile.orm.annotations.ForeignKey;
 import com.perfectworldprogramming.mobile.orm.annotations.PrimaryKey;
 import com.perfectworldprogramming.mobile.orm.annotations.Transient;
+import com.perfectworldprogramming.mobile.orm.exception.DataAccessException;
+import com.perfectworldprogramming.mobile.orm.exception.ExtraResultsException;
 import com.perfectworldprogramming.mobile.orm.exception.InvalidCursorExtractorException;
+import com.perfectworldprogramming.mobile.orm.exception.InvalidCursorRowMapperException;
 import com.perfectworldprogramming.mobile.orm.interfaces.ColumnTypeMapper;
 import com.perfectworldprogramming.mobile.orm.interfaces.CursorExtractor;
+import com.perfectworldprogramming.mobile.orm.interfaces.CursorRowMapper;
 import com.perfectworldprogramming.mobile.orm.reflection.PrimaryKeyMapper;
 
 /**
@@ -54,28 +58,28 @@ public class CursorAdapter {
      * @param <T> Domain Object type the CursorRowMapper maps
      * @return List<T> returns a list of populated domain objects based on the cursor data.
      */
-//    public <T> List<T> adaptListFromCursor(Cursor cursor, CursorRowMapper<T> cursorRowMapper) {
-//        List<T> values = new ArrayList<T>();
-//        if (cursor != null) {
-//            if (cursor.moveToFirst()) {
-//                do {                    
-//                    try {
-//                        T newInstance = cursorRowMapper.mapRow(cursor, cursor.getPosition());
-//                        values.add(newInstance);
-//                    } catch (IllegalStateException ise) {
-//                        if (!cursor.isClosed()) {
-//                            cursor.close();
-//                        }
-//                        throw new InvalidCursorRowMapperException(cursorRowMapper.getClass());
-//                    }
-//                } while (cursor.moveToNext());
-//            }
-//            if (!cursor.isClosed()) {
-//                cursor.close();
-//            }
-//        }
-//        return values;
-//    }
+    public <T> List<T> adaptListFromCursor(Cursor cursor, CursorRowMapper<T> cursorRowMapper) {
+        List<T> values = new ArrayList<T>();
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                do {                    
+                    try {
+                        T newInstance = cursorRowMapper.mapRow(cursor, cursor.getPosition());
+                        values.add(newInstance);
+                    } catch (IllegalStateException ise) {
+                        if (!cursor.isClosed()) {
+                            cursor.close();
+                        }
+                        throw new InvalidCursorRowMapperException(cursorRowMapper.getClass());
+                    }
+                } while (cursor.moveToNext());
+            }
+            if (!cursor.isClosed()) {
+                cursor.close();
+            }
+        }
+        return values;
+    }
 
     /**
      * Returns a Single Domain Object from the Cursor's first row. All other rows will be ignored.
@@ -120,27 +124,27 @@ public class CursorAdapter {
         return newInstance;
     }
 
-//    public <T> T adaptFromCursor(Cursor cursor, CursorRowMapper<T> cursorRowMapper) {
-//        T newInstance = null;
-//        if (cursor != null) {
-//            if(cursor.getCount() != 1) {
-//                throw new ExtraResultsException(cursor.getCount());
-//            }
-//
-//            if (cursor.moveToFirst()) {
-//                try {
-//                    newInstance = cursorRowMapper.mapRow(cursor, 1);
-//                } catch (IllegalStateException ise) {
-//                    throw new InvalidCursorRowMapperException(cursorRowMapper.getClass());
-//                } finally {
-//                    if (!cursor.isClosed()) {
-//                        cursor.close();
-//                    }
-//                }
-//            }
-//        }
-//        return newInstance;
-//    }
+    public <T> T adaptFromCursor(Cursor cursor, CursorRowMapper<T> cursorRowMapper) {
+        T newInstance = null;
+        if (cursor != null) {
+            if(cursor.getCount() != 1) {
+                throw new ExtraResultsException(cursor.getCount());
+            }
+
+            if (cursor.moveToFirst()) {
+                try {
+                    newInstance = cursorRowMapper.mapRow(cursor, 1);
+                } catch (IllegalStateException ise) {
+                    throw new InvalidCursorRowMapperException(cursorRowMapper.getClass());
+                } finally {
+                    if (!cursor.isClosed()) {
+                        cursor.close();
+                    }
+                }
+            }
+        }
+        return newInstance;
+    }
 
     /**
      * Converts the data from the Cursor into a Domain object based on the CursorExtractor callback.
@@ -207,22 +211,22 @@ public class CursorAdapter {
         }
     }
 
-    private <T> void setFieldValue(Field fieldToSet, T object, Cursor cursor) {
+	private <T> void setFieldValue(Field fieldToSet, T object, Cursor cursor) {
         //Skip over @Transient and @ForeignKey fields
         if (fieldToSet.isAnnotationPresent(Transient.class) ||
                 fieldToSet.isAnnotationPresent(ForeignKey.class)) {
             return;
         }
-        final ColumnTypeMapper mapper;
+        final ColumnTypeMapper<? extends Object> mapper;
         if (fieldToSet.isAnnotationPresent(PrimaryKey.class) ) {
             mapper = PrimaryKeyMapper.INSTANCE;
         }
         else if (fieldToSet.isAnnotationPresent(Column.class)){
-            mapper = fieldToSet.getAnnotation(Column.class).type().getMapper();
+			mapper = fieldToSet.getAnnotation(Column.class).type().getMapper();
         }
         else
         {
-            return;
+            throw new DataAccessException("Invalid type, cannot find field "+fieldToSet.getName()+" on type "+object.getClass().getName());
         }
         mapper.databaseToModel(cursor, fieldToSet, object);
     }

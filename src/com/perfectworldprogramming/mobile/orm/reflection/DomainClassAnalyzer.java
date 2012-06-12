@@ -55,9 +55,7 @@ public class DomainClassAnalyzer
                 Column column = field.getAnnotation(Column.class);
                 if(column.value().equalsIgnoreCase(columnName))
                 {
-                    @SuppressWarnings("unchecked")
-                    Object asSqlQueryParameter = column.type().getMapper().asSqlQueryParameter(value);
-                    return asSqlQueryParameter;
+                    return column.type().getMapper().asSqlQueryParameter(value);
                 }
             }
         }
