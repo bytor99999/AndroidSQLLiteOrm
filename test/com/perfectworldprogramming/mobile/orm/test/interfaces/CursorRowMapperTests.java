@@ -3,6 +3,8 @@ package com.perfectworldprogramming.mobile.orm.test.interfaces;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.test.ActivityInstrumentationTestCase2;
+
 import com.perfectworldprogramming.mobile.orm.AndroidSQLiteTemplate;
 import com.perfectworldprogramming.mobile.orm.exception.ExtraResultsException;
 import com.perfectworldprogramming.mobile.orm.helper.DBHelper;
@@ -10,8 +12,6 @@ import com.perfectworldprogramming.mobile.orm.test.Main;
 import com.perfectworldprogramming.mobile.orm.test.domain.Account;
 import com.perfectworldprogramming.mobile.orm.test.domain.Address;
 import com.perfectworldprogramming.mobile.orm.test.domain.Person;
-
-import android.test.ActivityInstrumentationTestCase2;
 
 /**
  * User: Mark Spritzler Date: 4/6/11 Time: 10:50 AM
@@ -33,6 +33,7 @@ public class CursorRowMapperTests extends ActivityInstrumentationTestCase2<Main>
     public void setUp()
     {
         helper = new DBHelper(this.getInstrumentation().getContext(), new Class[] { Person.class, Address.class, Account.class }, "ormtest", 3);
+
         template = new AndroidSQLiteTemplate(helper.getSqlLiteDatabase());
         SampleDataHelper.addDataToDatabase(template);
     }
