@@ -5,17 +5,21 @@ import com.perfectworldprogramming.mobile.orm.annotations.ColumnType;
 import com.perfectworldprogramming.mobile.orm.annotations.PrimaryKey;
 
 public class Account {
-	
-	@PrimaryKey("ACCOUNT_ID")
+	public static final String PK_ACCOUNT_ID = "ACCOUNT_ID";
+    public static final String COL_ACCOUNT_TYPE = "ACCOUNT_TYPE";
+    public static final String COL_AMOUNT = "AMOUNT";
+    public static final String COL_YEAR_STARTED = "YEAR_STARTED";
+    
+	@PrimaryKey(PK_ACCOUNT_ID)
 	private Long id;
 	
-	@Column(value="ACCOUNT_TYPE", nullable=false, type=ColumnType.TEXT)
+	@Column(value=COL_ACCOUNT_TYPE, nullable=false, type=ColumnType.STRING)
 	private String accountType;
 	
-	@Column(value="AMOUNT", type=ColumnType.REAL)
+	@Column(value=COL_AMOUNT, type=ColumnType.STRING)
 	private double amount;
 	
-	@Column(value="YEAR_STARTED", type=ColumnType.INTEGER)
+	@Column(value=COL_YEAR_STARTED, type=ColumnType.INTEGER)
 	private int yearAccountOpened;
 	
 	public Long getId() {

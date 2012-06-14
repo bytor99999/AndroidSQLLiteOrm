@@ -6,10 +6,10 @@ import com.perfectworldprogramming.mobile.orm.annotations.ForeignKey;
 
 public class NoPKDomain {
 
-	@Column(value="value1", type=ColumnType.TEXT)
+	@Column(value="value1", type=ColumnType.STRING)
 	private String value1;
 	
-	@Column(value="value1", type=ColumnType.TEXT)
+	@Column(value="value1", type=ColumnType.STRING)
 	private String value2;
 	
 	@ForeignKey(value="PERSON_ID")

@@ -7,9 +7,9 @@ package com.perfectworldprogramming.mobile.orm.exception;
  */
 public class ExtraResultsException extends DataAccessException {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 4713562069583405202L;
 
-	public ExtraResultsException(int numberOfResults) {
+    public ExtraResultsException(int numberOfResults) {
         super("Expected one row returned by query but received " + numberOfResults);
     }
 }

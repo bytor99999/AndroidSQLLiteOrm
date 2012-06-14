@@ -2,6 +2,7 @@ package com.perfectworldprogramming.mobile.orm.helper;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 /**
  * This class might be deprecated if not needed
@@ -15,7 +16,11 @@ public class DBHelper {
     private final AndroidSQLLiteOpenHelper openHelper;
 
     public DBHelper(Context context, Class<? extends Object>[] classes, String dataBaseName, int dataBaseVersion) {
-    	System.out.println(" " + context + " " + classes + " " + dataBaseName + " " + dataBaseVersion);
+        if(!dataBaseName.endsWith(".db"))
+        {
+            dataBaseName+=".db";
+        }
+    	Log.d("ORM", " " + context + " " + classes + " " + dataBaseName + " " + dataBaseVersion);
         openHelper = new AndroidSQLLiteOpenHelper(context, classes, dataBaseName, dataBaseVersion);
         establishDb();
     }
