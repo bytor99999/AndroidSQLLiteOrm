@@ -1,4 +1,4 @@
-package com.perfectworldprogramming.mobile.orm.test.reflection;
+package com.perfectworldprogramming.mobile.orm.test.oql;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,7 +6,7 @@ import java.util.List;
 import android.test.ActivityInstrumentationTestCase2;
 
 import com.perfectworldprogramming.mobile.orm.exception.FieldNotFoundException;
-import com.perfectworldprogramming.mobile.orm.reflection.QueryParser;
+import com.perfectworldprogramming.mobile.orm.oql.QueryParser;
 import com.perfectworldprogramming.mobile.orm.test.Main;
 import com.perfectworldprogramming.mobile.orm.test.domain.Address;
 import com.perfectworldprogramming.mobile.orm.test.domain.Person;
@@ -122,7 +122,7 @@ public class QueryParserTest  extends ActivityInstrumentationTestCase2<Main>
         }
     }
 
-    public void testMultipleClassesAndJoin()
+    public void testMultipleClasses()
     {
         final String input = "select * from Person p, Address a where p.[lastName] = ? and p.[Person.id]=a.[Address.person]";
         final String expected = "select * from Person p, Address a where p.LAST_NAME = ? and p.PERSON_ID=a.PERSON_ID";

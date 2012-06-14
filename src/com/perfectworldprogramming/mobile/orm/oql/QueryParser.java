@@ -1,4 +1,4 @@
-package com.perfectworldprogramming.mobile.orm.reflection;
+package com.perfectworldprogramming.mobile.orm.oql;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -10,6 +10,7 @@ import com.perfectworldprogramming.mobile.orm.annotations.ForeignKey;
 import com.perfectworldprogramming.mobile.orm.annotations.PrimaryKey;
 import com.perfectworldprogramming.mobile.orm.exception.DataAccessException;
 import com.perfectworldprogramming.mobile.orm.exception.FieldNotFoundException;
+import com.perfectworldprogramming.mobile.orm.reflection.DomainClassAnalyzer;
 /**
  * Allows SQL to refer to domain classes and fields, which are then converted to SQL.
  * Queries place matchable tokens in square brackets and refer to either a direct field or a qualified field

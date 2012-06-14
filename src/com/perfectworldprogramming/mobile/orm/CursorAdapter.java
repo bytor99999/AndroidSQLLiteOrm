@@ -13,7 +13,7 @@ import com.perfectworldprogramming.mobile.orm.annotations.PrimaryKey;
 import com.perfectworldprogramming.mobile.orm.annotations.Transient;
 import com.perfectworldprogramming.mobile.orm.exception.DataAccessException;
 import com.perfectworldprogramming.mobile.orm.exception.ExtraResultsException;
-import com.perfectworldprogramming.mobile.orm.exception.InvalidCursorExtractorException;
+import com.perfectworldprogramming.mobile.orm.exception.InvalidCursorException;
 import com.perfectworldprogramming.mobile.orm.exception.InvalidCursorRowMapperException;
 import com.perfectworldprogramming.mobile.orm.interfaces.ColumnTypeMapper;
 import com.perfectworldprogramming.mobile.orm.interfaces.CursorExtractor;
@@ -63,7 +63,7 @@ public class CursorAdapter {
         List<T> values = new ArrayList<T>();
         if (cursor != null) {
             if (cursor.moveToFirst()) {
-                do {                    
+                do {
                     try {
                         T newInstance = cursorRowMapper.mapRow(cursor, cursor.getPosition());
                         values.add(newInstance);
@@ -108,7 +108,7 @@ public class CursorAdapter {
     }
 
     /**
-     * Checks that the cursor is not bbeforeFirst or afterLast positions but does not move
+     * Checks that the cursor is not {@code beforeFirst} or {@code afterLast} positions but does not move
      * or close the cursor.
      * @param cursor
      * @param clazz
@@ -118,7 +118,7 @@ public class CursorAdapter {
     public <T> T adaptCurrentFromCursor(Cursor cursor, Class<T> clazz) {
         T newInstance = null;
         if (cursor != null) {
-             if (!cursor.isBeforeFirst() &&!cursor.isAfterLast()) {
+             if (!cursor.isBeforeFirst() && !cursor.isAfterLast()) {
                  newInstance = getSingleObjectValuesFromCursor(cursor, clazz);
              }
         }
@@ -163,7 +163,7 @@ public class CursorAdapter {
         try {
             result = cursorExtractor.extractData(cursor);
         } catch (IllegalStateException ise) {
-            throw new InvalidCursorExtractorException(cursorExtractor.getClass());
+            throw new InvalidCursorException(cursorExtractor.getClass());
         } finally {
             if (!cursor.isClosed()) {
                 cursor.close();
@@ -219,16 +219,23 @@ public class CursorAdapter {
                 || ((fieldToSet.getModifiers()&Modifier.STATIC)!=0)) {
             return;
         }
+        final String value;
         final ColumnTypeMapper<?> mapper;
         if (fieldToSet.isAnnotationPresent(PrimaryKey.class) ) {
             mapper = PrimaryKeyMapper.INSTANCE;
+            value = fieldToSet.getAnnotation(PrimaryKey.class).value();
         }
         else if (fieldToSet.isAnnotationPresent(Column.class)){
 			mapper = fieldToSet.getAnnotation(Column.class).type().getMapper();
+			value = fieldToSet.getAnnotation(Column.class).value();
         }
         else
         {
             throw new DataAccessException("Invalid type, cannot find field "+fieldToSet.getName()+" on type "+object.getClass().getName());
+        }
+        if(-1==cursor.getColumnIndex(value))
+        {
+            throw new InvalidCursorException(object.getClass());
         }
         mapper.databaseToModel(cursor, fieldToSet, object);
     }

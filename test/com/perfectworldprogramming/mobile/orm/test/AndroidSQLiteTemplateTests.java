@@ -10,8 +10,7 @@ import android.util.Log;
 import com.perfectworldprogramming.mobile.orm.AndroidSQLiteTemplate;
 import com.perfectworldprogramming.mobile.orm.exception.DataAccessException;
 import com.perfectworldprogramming.mobile.orm.exception.EmptySQLStatementException;
-import com.perfectworldprogramming.mobile.orm.exception.InvalidCursorExtractorException;
-import com.perfectworldprogramming.mobile.orm.exception.InvalidCursorRowMapperException;
+import com.perfectworldprogramming.mobile.orm.exception.InvalidCursorException;
 import com.perfectworldprogramming.mobile.orm.helper.DBHelper;
 import com.perfectworldprogramming.mobile.orm.interfaces.CursorExtractor;
 import com.perfectworldprogramming.mobile.orm.interfaces.CursorRowMapper;
@@ -728,9 +727,9 @@ public class AndroidSQLiteTemplateTests extends
 		try {
 			template.queryForObject(sql, cursorRowMapper, args);
 			fail("Should throw an InvalidCursorRowMapperException because the cursorRowMapper is of the wrong type. it is an Address Row mapper but the query is from Person");
-		} catch (InvalidCursorRowMapperException ie) {
+		} catch (InvalidCursorException ie) {
 		} catch (Exception e) {
-			fail("Only an EmptySQLStatementException should be thrown: "
+			fail("Only an InvalidCursorException should be thrown: "
 					+ e.getMessage());
 		}
 	}
@@ -779,7 +778,7 @@ public class AndroidSQLiteTemplateTests extends
 		try {
 			template.queryForObject(sql, cursorExtractor, args);
 			fail("Should throw an InvalidCursorExtractorException because the query does not return enough fields or from the Address table in a join clause");
-		} catch (InvalidCursorExtractorException ie) {
+		} catch (InvalidCursorException ie) {
 		} catch (Exception e) {
 			fail(e.getMessage());
 		}

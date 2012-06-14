@@ -30,17 +30,11 @@ import com.perfectworldprogramming.mobile.orm.reflection.DomainClassAnalyzer;
  */
 public class AndroidSQLiteTemplate implements JdbcOperations {
 	private SQLiteDatabase sqLiteDatabase;
-	private final DomainClassAnalyzer domainClassAnalyzer = new DomainClassAnalyzer();
+	protected final DomainClassAnalyzer domainClassAnalyzer = new DomainClassAnalyzer();
 	private final CursorAdapter cursorAdapter = new CursorAdapter();
 
 	public AndroidSQLiteTemplate(SQLiteDatabase sqLiteDatabase) {
 		this.sqLiteDatabase = sqLiteDatabase;
-	}
-
-	public Object mapQueryParameter(Object value, Class<?> clazz,
-			String columnName) {
-		return this.domainClassAnalyzer.mapQueryParameter(value, clazz,
-				columnName);
 	}
 
 	@Override
@@ -256,6 +250,11 @@ public class AndroidSQLiteTemplate implements JdbcOperations {
 		sql = replaceParametersInStatement(sql, args);
 		return executeForList(sql, cursorRowMapper);
 	}
+	
+    public Object mapQueryParameter(Object value, Class<?> clazz, String columnName)
+    {
+        return this.domainClassAnalyzer.mapQueryParameterByColumnName(value, clazz, columnName);
+    }
 
 	private <T> T executeForSingleObject(String sql,
 			CursorExtractor<T> cursorExtractor) {

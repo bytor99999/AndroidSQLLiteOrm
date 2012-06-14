@@ -14,6 +14,7 @@ import com.perfectworldprogramming.mobile.orm.annotations.Transient;
 import com.perfectworldprogramming.mobile.orm.exception.DataAccessException;
 import com.perfectworldprogramming.mobile.orm.exception.FieldNotFoundException;
 import com.perfectworldprogramming.mobile.orm.exception.NoPrimaryKeyFieldException;
+import com.perfectworldprogramming.mobile.orm.exception.TransientFieldException;
 
 /**
  * User: Mark Spritzler Date: 3/12/11 Time: 9:48 PM
@@ -21,12 +22,103 @@ import com.perfectworldprogramming.mobile.orm.exception.NoPrimaryKeyFieldExcepti
 public class DomainClassAnalyzer
 {
 
-    public Object mapQueryParameter(Object value, Class<?> clazz, String columnName)
+    /**
+     * Given a {@code fieldName}, return the matching SQL {@code columnName}
+     * 
+     * @param value
+     * @param clazz
+     * @param fieldName
+     * @return
+     */
+    public String getSqlParameter(Object value, Class<?> clazz, String fieldName)
+    {
+        Field field = null;
+        try
+        {
+            field = clazz.getDeclaredField(fieldName);
+        }
+        catch (SecurityException e)
+        {
+            throw new DataAccessException("Failed to access field " + fieldName + ": " + e.getMessage());
+        }
+        catch (NoSuchFieldException e)
+        {
+            throw new FieldNotFoundException("Could not find field " + fieldName + " in " + clazz.getName());
+        }
+        if (field.isAnnotationPresent(Transient.class))
+        {
+            throw new TransientFieldException(field);
+        }
+        if (field.isAnnotationPresent(PrimaryKey.class))
+        {
+            return field.getAnnotation(PrimaryKey.class).value();
+        }
+        else if (field.isAnnotationPresent(ForeignKey.class))
+        {
+            return field.getAnnotation(ForeignKey.class).value();
+        }
+        else if (field.isAnnotationPresent(Column.class))
+        {
+            return field.getAnnotation(Column.class).value();
+        }
+
+        throw new FieldNotFoundException("Could not find database column for field " + fieldName + " in " + clazz.getName());
+    }
+
+    public Object mapQueryParameterByFieldName(Object value, Class<?> clazz, String fieldName)
+    {
+        Field field = null;
+        try
+        {
+            field = clazz.getDeclaredField(fieldName);
+        }
+        catch (SecurityException e)
+        {
+            throw new DataAccessException("Failed to access field " + fieldName + ": " + e.getMessage());
+        }
+        catch (NoSuchFieldException e)
+        {
+            throw new FieldNotFoundException("Could not find domain field " + fieldName + " in " + clazz.getName());
+        }
+        if (field.isAnnotationPresent(Transient.class))
+        {
+            throw new TransientFieldException(field);
+        }
+        if (field.isAnnotationPresent(PrimaryKey.class))
+        {
+            return PrimaryKeyMapper.INSTANCE.asSqlQueryParameter((Long) value);
+        }
+        else if (field.isAnnotationPresent(ForeignKey.class))
+        {
+            return PrimaryKeyMapper.INSTANCE.asSqlQueryParameter((Long) value);
+        }
+        else if (field.isAnnotationPresent(Column.class))
+        {
+            Column column = field.getAnnotation(Column.class);
+            return column.type().getMapper().asSqlQueryParameter(value);
+        }
+
+        throw new FieldNotFoundException("Could not find database column for field " + fieldName + " in " + clazz.getName());
+}
+
+    /* *
+     * Given a {@code value} and the associated {@link Class} and
+     * {@link ColumnName}, find the correct {@link CursorTypeMapper} and return
+     * the value converted to the SQL domain.
+     * 
+     * @param value
+     *            the domain value
+     * @param clazz
+     *            the destination class
+     * @param columnName
+     * @return
+     */
+    public Object mapQueryParameterByColumnName(Object value, Class<?> clazz, String columnName)
     {
         for (Field field : clazz.getDeclaredFields())
         {
             // skip transient and static
-            if(field.isAnnotationPresent(Transient.class))
+            if (field.isAnnotationPresent(Transient.class))
             {
                 continue;
             }
@@ -37,29 +129,29 @@ public class DomainClassAnalyzer
                 PrimaryKey pk = field.getAnnotation(PrimaryKey.class);
                 if (pk.value().equalsIgnoreCase(columnName))
                 {
-                    return PrimaryKeyMapper.INSTANCE.asSqlQueryParameter((Long)value);
+                    return PrimaryKeyMapper.INSTANCE.asSqlQueryParameter((Long) value);
                 }
             }
 
-            if(field.isAnnotationPresent(ForeignKey.class))
+            if (field.isAnnotationPresent(ForeignKey.class))
             {
                 ForeignKey fk = field.getAnnotation(ForeignKey.class);
                 if (fk.value().equalsIgnoreCase(columnName))
                 {
-                    return PrimaryKeyMapper.INSTANCE.asSqlQueryParameter((Long)value);
+                    return PrimaryKeyMapper.INSTANCE.asSqlQueryParameter((Long) value);
                 }
             }
-            
-            if(field.isAnnotationPresent(Column.class))
+
+            if (field.isAnnotationPresent(Column.class))
             {
                 Column column = field.getAnnotation(Column.class);
-                if(column.value().equalsIgnoreCase(columnName))
+                if (column.value().equalsIgnoreCase(columnName))
                 {
                     return column.type().getMapper().asSqlQueryParameter(value);
                 }
             }
         }
-        throw new FieldNotFoundException("Could not find database field "+columnName+" in " + clazz.getName());
+        throw new FieldNotFoundException("Could not find database column " + columnName + " in " + clazz.getName());
     }
 
     public Field getPrimaryKeyField(Class<? extends Object> clazz)
@@ -189,5 +281,5 @@ public class DomainClassAnalyzer
             throw new DataAccessException("Unable to get the Foreign Key value from the domain object: " + domainObject.getClass().getName());
         }
     }
-    
+
 }
