@@ -13,7 +13,8 @@ public class Main extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-        AndroidSQLLiteOpenHelper dbHelper = new AndroidSQLLiteOpenHelper(this.getApplicationContext(), null, "ormtest", 1);
+        @SuppressWarnings("unchecked")
+        AndroidSQLLiteOpenHelper dbHelper = new AndroidSQLLiteOpenHelper(this.getApplicationContext(), new Class[]{}, "ormtest", 1);
         dbHelper.getWritableDatabase();
     }
 }

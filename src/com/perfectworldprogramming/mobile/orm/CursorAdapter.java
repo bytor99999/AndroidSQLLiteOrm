@@ -1,8 +1,11 @@
 package com.perfectworldprogramming.mobile.orm;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
+
+import android.database.Cursor;
 
 import com.perfectworldprogramming.mobile.orm.annotations.Column;
 import com.perfectworldprogramming.mobile.orm.annotations.ForeignKey;
@@ -10,12 +13,12 @@ import com.perfectworldprogramming.mobile.orm.annotations.PrimaryKey;
 import com.perfectworldprogramming.mobile.orm.annotations.Transient;
 import com.perfectworldprogramming.mobile.orm.exception.DataAccessException;
 import com.perfectworldprogramming.mobile.orm.exception.ExtraResultsException;
-import com.perfectworldprogramming.mobile.orm.exception.InvalidCursorExtractorException;
+import com.perfectworldprogramming.mobile.orm.exception.InvalidCursorException;
 import com.perfectworldprogramming.mobile.orm.exception.InvalidCursorRowMapperException;
+import com.perfectworldprogramming.mobile.orm.interfaces.ColumnTypeMapper;
 import com.perfectworldprogramming.mobile.orm.interfaces.CursorExtractor;
 import com.perfectworldprogramming.mobile.orm.interfaces.CursorRowMapper;
-
-import android.database.Cursor;
+import com.perfectworldprogramming.mobile.orm.reflection.PrimaryKeyMapper;
 
 /**
  * User: Mark Spritzler
@@ -34,10 +37,14 @@ public class CursorAdapter {
      * @return List<T> returns a list of populated domain objects based on the cursor data.
      */
     public <T> List<T> adaptListFromCursor(Cursor cursor, Class<T> clazz) {
-    	List<T> results = new ArrayList<T>();
-    	if (cursor.getCount() > 0) {
-            results = getValuesFromCursor(cursor, clazz);
-            cursor.close();
+        List<T> results = new ArrayList<T>();
+        if (cursor.getCount() > 0) {
+            try {
+                results = getValuesFromCursor(cursor, clazz);
+            }
+            finally {
+                cursor.close();
+            }
         }
         return results;
     }
@@ -56,63 +63,88 @@ public class CursorAdapter {
         List<T> values = new ArrayList<T>();
         if (cursor != null) {
             if (cursor.moveToFirst()) {
-                do {                    
+                do {
                     try {
-                    	T newInstance = cursorRowMapper.mapRow(cursor, cursor.getPosition());
+                        T newInstance = cursorRowMapper.mapRow(cursor, cursor.getPosition());
                         values.add(newInstance);
-        			} catch (IllegalStateException ise) {
-        				if (!cursor.isClosed()) {
-        					cursor.close();
-        				}
-        				throw new InvalidCursorRowMapperException(cursorRowMapper.getClass());
-        			}
+                    } catch (IllegalStateException ise) {
+                        if (!cursor.isClosed()) {
+                            cursor.close();
+                        }
+                        throw new InvalidCursorRowMapperException(cursorRowMapper.getClass());
+                    }
                 } while (cursor.moveToNext());
             }
             if (!cursor.isClosed()) {
-				cursor.close();
-			}
+                cursor.close();
+            }
         }
         return values;
     }
 
     /**
      * Returns a Single Domain Object from the Cursor's first row. All other rows will be ignored.
+     * Always moves to the first row and always closes the cursor.
      * @param cursor returned data from the database query.
      * @param clazz Domain object Class to put all the data from the cursor
      * @param <T> Domain Object type of the Class
      * @return T domain object populated with data from the first row in the Cursor
      */
     public <T> T adaptFromCursor(Cursor cursor, Class<T> clazz) {
-    	T newInstance = null;
+        T newInstance = null;
         if (cursor != null) {
-        	 if (cursor.moveToFirst()) {
-        		 newInstance = getSingleObjectValuesFromCursor(cursor, clazz);
-        		 cursor.close();
-        	 }
+            try
+            {
+                if (cursor.moveToFirst()) {
+                    newInstance = adaptCurrentFromCursor(cursor, clazz);
+                }
+            }
+            finally
+            {
+                cursor.close();
+            }
+        }
+        return newInstance;
+    }
+
+    /**
+     * Checks that the cursor is not {@code beforeFirst} or {@code afterLast} positions but does not move
+     * or close the cursor.
+     * @param cursor
+     * @param clazz
+     * @param willClose
+     * @return
+     */
+    public <T> T adaptCurrentFromCursor(Cursor cursor, Class<T> clazz) {
+        T newInstance = null;
+        if (cursor != null) {
+             if (!cursor.isBeforeFirst() && !cursor.isAfterLast()) {
+                 newInstance = getSingleObjectValuesFromCursor(cursor, clazz);
+             }
         }
         return newInstance;
     }
 
     public <T> T adaptFromCursor(Cursor cursor, CursorRowMapper<T> cursorRowMapper) {
-    	T newInstance = null;
-    	if (cursor != null) {
-    		if(cursor.getCount() != 1) {
-    			throw new ExtraResultsException(cursor.getCount());
-    		}
+        T newInstance = null;
+        if (cursor != null) {
+            if(cursor.getCount() != 1) {
+                throw new ExtraResultsException(cursor.getCount());
+            }
 
-    		if (cursor.moveToFirst()) {
-    			try {
-    				newInstance = cursorRowMapper.mapRow(cursor, 1);
-    			} catch (IllegalStateException ise) {
-    				throw new InvalidCursorRowMapperException(cursorRowMapper.getClass());
-    			} finally {
-    				if (!cursor.isClosed()) {
-    					cursor.close();
-    				}
-    			}
-    		}
-    	}
-    	return newInstance;
+            if (cursor.moveToFirst()) {
+                try {
+                    newInstance = cursorRowMapper.mapRow(cursor, 1);
+                } catch (IllegalStateException ise) {
+                    throw new InvalidCursorRowMapperException(cursorRowMapper.getClass());
+                } finally {
+                    if (!cursor.isClosed()) {
+                        cursor.close();
+                    }
+                }
+            }
+        }
+        return newInstance;
     }
 
     /**
@@ -129,27 +161,31 @@ public class CursorAdapter {
     public <T> T adaptFromCursor(Cursor cursor, CursorExtractor<T> cursorExtractor) {
         T result = null;
         try {
-        	result = cursorExtractor.extractData(cursor);
+            result = cursorExtractor.extractData(cursor);
         } catch (IllegalStateException ise) {
-        	throw new InvalidCursorExtractorException(cursorExtractor.getClass());
+            throw new InvalidCursorException(cursorExtractor.getClass());
         } finally {
-        	if (!cursor.isClosed()) {
-        		cursor.close();
-        	}
+            if (!cursor.isClosed()) {
+                cursor.close();
+            }
         }
-    	return result;
+        return result;
     }
 
     private <T> List<T> getValuesFromCursor(Cursor cursor, Class<T> clazz) {
         List<T> values = new ArrayList<T>();
         if (cursor != null) {
-            if (cursor.moveToFirst()) {
-                do {
-                    T newInstance = getSingleObjectValuesFromCursor(cursor, clazz);
-                    values.add(newInstance);
-                } while (cursor.moveToNext());
+            try {
+                if (cursor.moveToFirst()) {
+                    do {
+                        T newInstance = getSingleObjectValuesFromCursor(cursor, clazz);
+                        values.add(newInstance);
+                    } while (cursor.moveToNext());
+                }
             }
-            cursor.close();
+            finally {
+                cursor.close();
+            }
         }
         return values;
     }
@@ -160,11 +196,12 @@ public class CursorAdapter {
             newInstance = clazz.newInstance();
             setFieldValues(clazz, newInstance, cursor);
         } catch (InstantiationException e) {
-            e.printStackTrace();
+            throw new RuntimeException("CursorAdapter", e);
+            //e.printStackTrace();
         } catch (IllegalAccessException e) {
-            e.printStackTrace();
+            throw new RuntimeException("CursorAdapter", e);
+            //e.printStackTrace();
         }
-
         return newInstance;
     }
 
@@ -175,57 +212,32 @@ public class CursorAdapter {
         }
     }
 
-    private <T> void setFieldValue(Field fieldToSet, T object, Cursor cursor) {
-
-        //Skip over @Transient and @ForeignKey fields
+	private <T> void setFieldValue(Field fieldToSet, T object, Cursor cursor) {
+        //Skip over @Transient, @ForeignKey and static fields
         if (fieldToSet.isAnnotationPresent(Transient.class) ||
-                fieldToSet.isAnnotationPresent(ForeignKey.class)) {
+                fieldToSet.isAnnotationPresent(ForeignKey.class)
+                || ((fieldToSet.getModifiers()&Modifier.STATIC)!=0)) {
             return;
-        }               
-        String columnName = getColumnName(fieldToSet);
-
-        int columnIndex = cursor.getColumnIndex(columnName);
-
-        fieldToSet.setAccessible(true);
-        Class<? extends Object> clazz = fieldToSet.getType();
-        Object value = getValue(clazz, cursor, columnIndex);
-        if (value != null) {
-            try {
-                fieldToSet.set(object, value);
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            }
         }
-    }
-
-    private String getColumnName(Field field) {
-        String columnName;
-        Column column = field.getAnnotation(Column.class);     
-        if (column == null) {
-            PrimaryKey key = field.getAnnotation(PrimaryKey.class);
-            columnName = key.value();
-        } else {
-            columnName = column.value();
+        final String value;
+        final ColumnTypeMapper<?> mapper;
+        if (fieldToSet.isAnnotationPresent(PrimaryKey.class) ) {
+            mapper = PrimaryKeyMapper.INSTANCE;
+            value = fieldToSet.getAnnotation(PrimaryKey.class).value();
         }
-        return columnName;
-    }
-
-    private Object getValue(Class<? extends Object> clazz, Cursor cursor, int columnIndex) {
-    	if (cursor.getColumnCount() <= columnIndex || columnIndex < 0) {
-    		throw new DataAccessException("Column index " + columnIndex + " does not exist");
-    	}
-        if (clazz.getName().endsWith("Integer") || clazz.getName().endsWith("int")) {
-            return cursor.getInt(columnIndex);
-        } else if (clazz.getName().endsWith("Long") || clazz.getName().endsWith("long")) {
-            return cursor.getLong(columnIndex);
-        } else if (clazz.getName().endsWith("Double") || clazz.getName().endsWith("double")) {
-            return cursor.getDouble(columnIndex);
-        } else if (clazz.getName().endsWith("Float") || clazz.getName().endsWith("float")) {
-            return cursor.getFloat(columnIndex);
-        } else if (clazz.getName().endsWith("String")) {
-            return cursor.getString(columnIndex);
+        else if (fieldToSet.isAnnotationPresent(Column.class)){
+			mapper = fieldToSet.getAnnotation(Column.class).type().getMapper();
+			value = fieldToSet.getAnnotation(Column.class).value();
         }
-        return null;
+        else
+        {
+            throw new DataAccessException("Invalid type, cannot find field "+fieldToSet.getName()+" on type "+object.getClass().getName());
+        }
+        if(-1==cursor.getColumnIndex(value))
+        {
+            throw new InvalidCursorException(object.getClass());
+        }
+        mapper.databaseToModel(cursor, fieldToSet, object);
     }
 
 }

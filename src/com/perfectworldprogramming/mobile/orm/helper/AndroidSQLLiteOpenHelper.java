@@ -4,15 +4,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.perfectworldprogramming.mobile.orm.creator.SQLLiteCreateStatementGenerator;
-import com.perfectworldprogramming.mobile.orm.exception.DataAccessException;
-
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+
+import com.perfectworldprogramming.mobile.orm.creator.SQLLiteCreateStatementGenerator;
+import com.perfectworldprogramming.mobile.orm.exception.DatabaseSqlException;
 
 /**
  * User: Mark Spritzler
@@ -32,7 +32,9 @@ public class AndroidSQLLiteOpenHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         SQLLiteCreateStatementGenerator sqlLiteCreateStatementGenerator = new SQLLiteCreateStatementGenerator();
         for (Class<? extends Object> clazz : classes) {
-            sqLiteDatabase.execSQL(sqlLiteCreateStatementGenerator.createCreateStatement(clazz));
+            String createStatement = sqlLiteCreateStatementGenerator.createCreateStatement(clazz);
+            Log.d("ORM", createStatement);
+            sqLiteDatabase.execSQL(createStatement);
         }
     }
 
@@ -49,14 +51,14 @@ public class AndroidSQLLiteOpenHelper extends SQLiteOpenHelper {
      */
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
-        SQLLiteCreateStatementGenerator sqlLiteCreateStatementGenerator = new SQLLiteCreateStatementGenerator();   
+        SQLLiteCreateStatementGenerator sqlLiteCreateStatementGenerator = new SQLLiteCreateStatementGenerator();
         sqLiteDatabase.beginTransaction();
         for (Class<? extends Object> clazz : classes) {
         	// Thanks to Pentium10 at Stack Overflow for this solution.
         	String createStatementIfNotExists = sqlLiteCreateStatementGenerator.createCreateIfNotExistsStatement(clazz);
         	String tableName = clazz.getSimpleName();
         	try {
-        		sqLiteDatabase.execSQL(createStatementIfNotExists);         		
+        		sqLiteDatabase.execSQL(createStatementIfNotExists);
         		List<String> columns = getColumns(sqLiteDatabase, tableName);
         		sqLiteDatabase.execSQL("ALTER table " + tableName + " RENAME TO 'temp_" + tableName + "'");
         		sqLiteDatabase.execSQL(sqlLiteCreateStatementGenerator.createCreateStatement(clazz));
@@ -65,8 +67,8 @@ public class AndroidSQLLiteOpenHelper extends SQLiteOpenHelper {
         		sqLiteDatabase.execSQL(String.format( "INSERT INTO %s (%s) SELECT %s from temp_%s", tableName, cols, cols, tableName));
         		sqLiteDatabase.execSQL("DROP table 'temp_" + tableName +"'");
         	} catch (SQLException e) {
-        		Log.v(tableName, e.getMessage(), e);
-        		throw new DataAccessException(e.getMessage());
+        		Log.v("ORM", tableName+": "+e.getMessage(), e);
+        		throw new DatabaseSqlException(e.getMessage(), e);
         	}
         }
         sqLiteDatabase.setTransactionSuccessful();
@@ -83,8 +85,8 @@ public class AndroidSQLLiteOpenHelper extends SQLiteOpenHelper {
                 ar = new ArrayList<String>(Arrays.asList(c.getColumnNames()));
             }
         } catch (Exception e) {
-            Log.v(tableName, e.getMessage(), e);
-            e.printStackTrace();
+            Log.v("ORM", tableName+": "+e.getMessage(), e);
+            throw new RuntimeException("AndroidSQLLiteOpenHelper", e);
         } finally {
             if (c != null)
                 c.close();

@@ -15,16 +15,16 @@ public class Address {
     @PrimaryKey(value = "ADDRESS_ID")
     private Long id;
 
-    @Column(value = "STREET", type = ColumnType.TEXT, nullable = false)
+    @Column(value = "STREET", type = ColumnType.STRING, nullable = false)
     private String street;
 
-    @Column(value = "CITY", type = ColumnType.TEXT, nullable = false)
+    @Column(value = "CITY", type = ColumnType.STRING, nullable = false)
     private String city;
 
-    @Column(value = "STATE", type = ColumnType.TEXT, nullable = false)
+    @Column(value = "STATE", type = ColumnType.STRING, nullable = false)
     private String state;
 
-    @Column(value = "ZIP_CODE", type = ColumnType.TEXT, nullable = false)
+    @Column(value = "ZIP_CODE", type = ColumnType.STRING, nullable = false)
     private String zipCode;
 
     @ForeignKey(value = "PERSON_ID")
@@ -90,12 +90,12 @@ public class Address {
     
     @Override
     public String toString() {
-    	String address = "Id: " + id +
-    					" Street: " + street +
-    					" City: " + city +
-    					" State: " + state +
-    					" Zip Code: " + zipCode;    	
-    	return address;
+        String address = "Id: " + id +
+                        " Street: " + street +
+                        " City: " + city +
+                        " State: " + state +
+                        " Zip Code: " + zipCode;        
+        return address;
     }
 
     @Override

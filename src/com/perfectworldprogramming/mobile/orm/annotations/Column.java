@@ -25,7 +25,7 @@ public @interface Column {
      *
      * @return String field name in the database
      */
-    public String value() default "";
+    public String value();
 
     /**
      * Should the column be unique and not allow duplicates.
@@ -50,5 +50,5 @@ public @interface Column {
      * 
      * @return ColumnType
      */
-    public ColumnType type() default ColumnType.TEXT;
+    public ColumnType type() default ColumnType.STRING;
 }

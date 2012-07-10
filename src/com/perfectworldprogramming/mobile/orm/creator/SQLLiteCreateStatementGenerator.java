@@ -1,14 +1,14 @@
 package com.perfectworldprogramming.mobile.orm.creator;
 
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.perfectworldprogramming.mobile.orm.annotations.Column;
 import com.perfectworldprogramming.mobile.orm.annotations.ColumnType;
 import com.perfectworldprogramming.mobile.orm.annotations.ForeignKey;
 import com.perfectworldprogramming.mobile.orm.annotations.PrimaryKey;
 import com.perfectworldprogramming.mobile.orm.reflection.DomainClassAnalyzer;
-
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * This class generates CREATE SQL statements for mapped Domain objects.
@@ -163,7 +163,7 @@ public class SQLLiteCreateStatementGenerator implements CreateStatementGenerator
     private void addColumnsToStatement(StringBuilder createStatement, Column column) {    	
         createStatement.append(column.value());
     	createStatement.append(SPACE);
-        createStatement.append(column.type().name());
+        createStatement.append(column.type().getMapper().getDatabaseColumnType());
         createStatement.append(SPACE);
         if (column.unique()) {
             createStatement.append(UNIQUE);

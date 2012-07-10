@@ -1,16 +1,16 @@
 package com.perfectworldprogramming.mobile.orm.test.reflection;
 
 import java.lang.reflect.Field;
+import java.util.List;
 
+import android.content.ContentValues;
+import android.test.ActivityInstrumentationTestCase2;
 
 import com.perfectworldprogramming.mobile.orm.annotations.PrimaryKey;
 import com.perfectworldprogramming.mobile.orm.reflection.DomainClassAnalyzer;
 import com.perfectworldprogramming.mobile.orm.test.Main;
 import com.perfectworldprogramming.mobile.orm.test.domain.Address;
 import com.perfectworldprogramming.mobile.orm.test.domain.Person;
-
-import android.content.ContentValues;
-import android.test.ActivityInstrumentationTestCase2;
 
 /**
  * User: Mark Spritzler
@@ -22,14 +22,6 @@ public class DomainClassAnalyzerTests extends ActivityInstrumentationTestCase2<M
 
     public DomainClassAnalyzerTests() {
     	super("org.springframework.mobile.orm.test", Main.class);
-    }
-    
-    public void setUp() {
-    	try {
-			super.setUp();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
     }
     
     public void testGetPrimaryKeyFieldTest() {
@@ -51,10 +43,10 @@ public class DomainClassAnalyzerTests extends ActivityInstrumentationTestCase2<M
     }
 
     public void testGetForeignKeyFieldsTest() {
-        Field[] personForeignKeyFields = domainClassAnalyzer.getForeignKeyFields(Person.class);
-        assertEquals("", 0, personForeignKeyFields.length);
-        Field[] addressForeignKeyFields = domainClassAnalyzer.getForeignKeyFields(Address.class);
-        assertEquals("", 1, addressForeignKeyFields.length);
+        List<Field> personForeignKeyFields = domainClassAnalyzer.getForeignKeyFields(Person.class);
+        assertEquals("", 0, personForeignKeyFields.size());
+        List<Field> addressForeignKeyFields = domainClassAnalyzer.getForeignKeyFields(Address.class);
+        assertEquals("", 1, addressForeignKeyFields.size());
     }
 
     public void testGetIdFromObjectTest() {
